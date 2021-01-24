@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "vec3.h"
+#include "ray.h"
 
 int main() {
   Vec3f v1(1, 0, 0);
