@@ -11,7 +11,5 @@ target_include_directories(main PRIVATE src)
 
 # reference
 if(BUILD_REFERENCE)
-  add_executable(ref ref/main.cpp)
-  target_compile_features(ref PRIVATE cxx_std_17)
-  target_include_directories(ref PRIVATE ref)
+  add_subdirectory(ref)
 endif()

@@ -21,11 +21,11 @@ int main() {
       const Ray ray = camera.sampleRay(u, v);
 
       // レイが球と交差するかテスト
-      IntersectInfo info if (sphere.intersect(ray, info)) {
+      IntersectInfo info;
+      if (sphere.intersect(ray, info)) {
         // 交差したら法線を表示
-        img.setPixel(i, j, 0.5f * info.hitNormal + 0.5f);
-      }
-      else {
+        img.setPixel(i, j, 0.5f * info.hitNormal + Vec3f(0.5f));
+      } else {
         img.setPixel(i, j, Vec3f(0));
       }
     }
