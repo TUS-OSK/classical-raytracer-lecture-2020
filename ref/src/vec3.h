@@ -17,6 +17,8 @@ struct Vec3 {
 
   T operator[](unsigned int i) const { return v[i]; }
   T& operator[](unsigned int i) { return v[i]; }
+
+  Vec3 operator-() const { return Vec3(-v[0], -v[1], -v[2]); }
 };
 
 // ベクトル同士の加算
