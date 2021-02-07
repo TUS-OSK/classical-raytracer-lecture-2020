@@ -28,10 +28,13 @@ Vec3f raytrace(const Ray& ray_in, const Scene& scene) {
   IntersectInfo info;
   for (int i = 0; i < MAX_DEPTH; ++i) {
     if (scene.intersect(ray, info)) {
+      // ミラーの場合
       if (info.hitSphere->material_type == MaterialType::Mirror) {
         // 次のレイをセット
         ray = Ray(info.hitPos, reflect(-ray.direction, info.hitNormal));
-      } else if (info.hitSphere->material_type == MaterialType::Glass) {
+      }
+      // ガラスの場合
+      else if (info.hitSphere->material_type == MaterialType::Glass) {
         // 球の内部にあるか判定
         bool is_inside = dot(-ray.direction, info.hitNormal) < 0;
 
@@ -45,16 +48,21 @@ Vec3f raytrace(const Ray& ray_in, const Scene& scene) {
 
         // 次のレイをセット
         ray = Ray(info.hitPos, next_direction);
-      } else {
+      }
+      // その他の場合
+      else {
         // 光源が見えるかテスト
         Ray shadow_ray(info.hitPos, LIGHT_DIRECTION);
         IntersectInfo shadow_info;
+
+        // 光源が見える場合
         if (!scene.intersect(shadow_ray, shadow_info)) {
-          // 光源が見えたら寄与を計算
           color = std::max(dot(LIGHT_DIRECTION, info.hitNormal), 0.0f) *
-                  info.hitSphere->kd;
-        } else {
-          // 光源から見えなかったら一定量の寄与を与える
+                      info.hitSphere->kd +
+                  Vec3f(0.1f) * info.hitSphere->kd;
+        }
+        // 光源が見えない場合
+        else {
           color = Vec3f(0.1f) * info.hitSphere->kd;
         }
       }
@@ -110,6 +118,9 @@ int main() {
       img.setPixel(i, j, color);
     }
   }
+
+  // ガンマ補正
+  img.gammaCorrection();
 
   // PPM画像の生成
   img.writePPM("output.ppm");
