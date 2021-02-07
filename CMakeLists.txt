@@ -4,6 +4,9 @@ project(classical-raytracer LANGUAGES CXX)
 
 option(BUILD_REFERENCE "build reference raytracer" OFF)
 
+# openMP
+find_package(OpenMP)
+
 # main
 add_executable(main src/main.cpp)
 target_compile_features(main PRIVATE cxx_std_17)
