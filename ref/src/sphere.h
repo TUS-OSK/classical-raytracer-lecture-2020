@@ -44,6 +44,7 @@ class Sphere {
     info.t = t;
     info.hitPos = ray(t);
     info.hitNormal = normalize(info.hitPos - center);
+    info.hitSphere = this;
 
     return true;
   }
