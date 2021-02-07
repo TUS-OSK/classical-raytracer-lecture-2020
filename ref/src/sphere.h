@@ -7,13 +7,12 @@
 enum class MaterialType { Diffuse, Mirror, Glass };
 
 class Sphere {
- private:
+ public:
   Vec3f center;                // 中心位置
   float radius;                // 半径
   Vec3f kd;                    // 色
   MaterialType material_type;  // 材質
 
- public:
   Sphere(const Vec3f& center, float radius, const Vec3f& kd,
          const MaterialType& material_type)
       : center(center), radius(radius), kd(kd), material_type(material_type) {}
