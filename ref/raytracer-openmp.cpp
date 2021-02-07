@@ -10,16 +10,6 @@
 // 光源の方向
 const Vec3f LIGHT_DIRECTION = normalize(Vec3f(0.5, 1, 0.5));
 
-// 反射ベクトルの計算
-Vec3f reflect(const Vec3f& v, const Vec3f& n) {
-  return -v + 2.0f * dot(v, n) * n;
-}
-
-// 屈折ベクトルの計算
-Vec3f refract(const Vec3f& v, const Vec3f& n, float ior1, float ior2) {
-  return Vec3f(0);
-}
-
 // 古典的レイトレーシングの処理
 Vec3f raytrace(const Ray& ray_in, const Scene& scene) {
   constexpr int MAX_DEPTH = 100;  // 再帰の最大深さ
@@ -43,9 +33,15 @@ Vec3f raytrace(const Ray& ray_in, const Scene& scene) {
         // 次のレイの方向の計算
         Vec3f next_direction;
         if (!is_inside) {
-          next_direction = refract(-ray.direction, info.hitNormal, 1.0f, 1.5f);
+          if (!refract(-ray.direction, info.hitNormal, 1.0f, 1.5f,
+                       next_direction)) {
+            next_direction = reflect(-ray.direction, info.hitNormal);
+          }
         } else {
-          next_direction = refract(-ray.direction, -info.hitNormal, 1.5f, 1.0f);
+          if (!refract(-ray.direction, -info.hitNormal, 1.5f, 1.0f,
+                       next_direction)) {
+            next_direction = reflect(-ray.direction, -info.hitNormal);
+          }
         }
 
         // 次のレイをセット
@@ -82,19 +78,22 @@ int main() {
   constexpr int SSAA_samples = 16;
   Image img(width, height);
 
-  PinholeCamera camera(Vec3f(0, 0, 5), Vec3f(0, 0, -1));
+  const Vec3f camPos(4, 1, 7);
+  const Vec3f lookAt(0);
+  PinholeCamera camera(camPos, normalize(lookAt - camPos));
 
   // シーンの作成
   Scene scene;
   scene.addSphere(
       Sphere(Vec3f(0, -1001, 0), 1000.0, Vec3f(0.9), MaterialType::Diffuse));
-  scene.addSphere(Sphere(Vec3f(-1, 0, 1), 1.0, Vec3f(0.8, 0.2, 0.2),
+  scene.addSphere(Sphere(Vec3f(-2, 0, 1), 1.0, Vec3f(0.8, 0.2, 0.2),
                          MaterialType::Diffuse));
   scene.addSphere(
       Sphere(Vec3f(0), 1.0, Vec3f(0.2, 0.8, 0.2), MaterialType::Diffuse));
-  scene.addSphere(Sphere(Vec3f(1, 0, -1), 1.0, Vec3f(0.2, 0.2, 0.8),
+  scene.addSphere(Sphere(Vec3f(2, 0, -1), 1.0, Vec3f(0.2, 0.2, 0.8),
                          MaterialType::Diffuse));
-  scene.addSphere(Sphere(Vec3f(-2, 2, 1), 1.0, Vec3f(1), MaterialType::Mirror));
+  scene.addSphere(Sphere(Vec3f(-2, 3, 1), 1.0, Vec3f(1), MaterialType::Mirror));
+  scene.addSphere(Sphere(Vec3f(3, 1, 2), 1.0, Vec3f(1), MaterialType::Glass));
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (int j = 0; j < height; ++j) {
