@@ -1,5 +1,4 @@
 #include "image.h"
-#include "pinhole-camera.h"
 #include "sphere.h"
 
 int main() {
