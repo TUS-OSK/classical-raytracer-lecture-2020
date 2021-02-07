@@ -1,6 +1,6 @@
 #include "image.h"
-#include "intersect-info.h"
 #include "pinhole-camera.h"
+#include "sphere.h"
 
 int main() {
   Image img(512, 512);

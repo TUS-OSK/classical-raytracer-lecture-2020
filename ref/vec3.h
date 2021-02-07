@@ -101,6 +101,15 @@ inline float length(const Vec3<T>& v) {
   return std::sqrt(sum);
 }
 
+template <typename T>
+inline float length2(const Vec3<T>& v) {
+  float sum = 0;
+  for (int i = 0; i < 3; ++i) {
+    sum += v[i] * v[i];
+  }
+  return sum;
+}
+
 // 正規化
 template <typename T>
 inline Vec3<T> normalize(const Vec3<T>& v) {
