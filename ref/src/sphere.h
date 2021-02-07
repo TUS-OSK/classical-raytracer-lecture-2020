@@ -31,9 +31,11 @@ class Sphere {
 
     // レイの始点から近い方の解を計算
     float t = t0;
-    if (t < ray.tmin || ray.tmax) {
+    if (t < ray.tmin || t > ray.tmax) {
       t = t1;
-      if (t < ray.tmin || ray.tmax) {
+
+      // レイが許容交差距離内に無かった場合
+      if (t < ray.tmin || t > ray.tmax) {
         return false;
       }
     }
