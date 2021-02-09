@@ -21,12 +21,10 @@ target_include_directories(raytracer PRIVATE src)
 add_executable(test-rng test-rng.cpp)
 target_compile_features(test-rng PRIVATE cxx_std_17)
 target_include_directories(test-rng PRIVATE src)
-target_link_libraries(test-rng PRIVATE OpenMP::OpenMP_CXX)
 
 add_executable(raytracer-ssaa raytracer-ssaa.cpp)
 target_compile_features(raytracer-ssaa PRIVATE cxx_std_17)
 target_include_directories(raytracer-ssaa PRIVATE src)
-target_link_libraries(raytracer-ssaa PRIVATE OpenMP::OpenMP_CXX)
 
 add_executable(openmp-test openmp-test.cpp)
 target_compile_features(openmp-test PRIVATE cxx_std_17)
