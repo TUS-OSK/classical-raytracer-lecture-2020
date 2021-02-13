@@ -9,6 +9,9 @@
 
 constexpr float PI = 3.14159265359f;
 
+// 光源の方向
+const Vec3f LIGHT_DIRECTION = normalize(Vec3f(0.5, 1, 0.5));
+
 // ローカル座標系からワールド座標系への変換
 Vec3f localToWorld(const Vec3f& v, const Vec3f& lx, const Vec3f& ly,
                    const Vec3f& lz) {
@@ -68,6 +71,73 @@ float RTAO(const IntersectInfo& info, const Scene& scene, RNG& rng) {
   return static_cast<float>(count) / AO_SAMPLES;
 }
 
+// 古典的レイトレーシングの処理
+Vec3f raytrace(const Ray& ray_in, const Scene& scene, RNG& rng) {
+  constexpr int MAX_DEPTH = 100;  // 再帰の最大深さ
+
+  Ray ray = ray_in;
+  Vec3f color(0);  // 最終的な色
+
+  IntersectInfo info;
+  for (int i = 0; i < MAX_DEPTH; ++i) {
+    if (scene.intersect(ray, info)) {
+      // ミラーの場合
+      if (info.hitSphere->material_type == MaterialType::Mirror) {
+        // 次のレイをセット
+        ray = Ray(info.hitPos, reflect(-ray.direction, info.hitNormal));
+      }
+      // ガラスの場合
+      else if (info.hitSphere->material_type == MaterialType::Glass) {
+        // 球の内部にあるか判定
+        bool is_inside = dot(-ray.direction, info.hitNormal) < 0;
+
+        // 次のレイの方向の計算
+        Vec3f next_direction;
+        if (!is_inside) {
+          if (!refract(-ray.direction, info.hitNormal, 1.0f, 1.5f,
+                       next_direction)) {
+            next_direction = reflect(-ray.direction, info.hitNormal);
+          }
+        } else {
+          if (!refract(-ray.direction, -info.hitNormal, 1.5f, 1.0f,
+                       next_direction)) {
+            next_direction = reflect(-ray.direction, -info.hitNormal);
+          }
+        }
+
+        // 次のレイをセット
+        ray = Ray(info.hitPos, next_direction);
+      }
+      // その他の場合
+      else {
+        // AOの計算
+        const float ao = RTAO(info, scene, rng);
+        // 環境光成分
+        const Vec3f ka = 0.1f * (1.0f - ao) * info.hitSphere->kd;
+
+        // 光源が見えるかテスト
+        Ray shadow_ray(info.hitPos, LIGHT_DIRECTION);
+        IntersectInfo shadow_info;
+
+        // 光源が見える場合
+        if (!scene.intersect(shadow_ray, shadow_info)) {
+          color = std::max(dot(LIGHT_DIRECTION, info.hitNormal), 0.0f) *
+                      info.hitSphere->kd +
+                  ka;
+        }
+        // 光源が見えない場合
+        else {
+          color = ka;
+        }
+      }
+    } else {
+      break;
+    }
+  }
+
+  return color;
+}
+
 int main() {
   constexpr int width = 512;
   constexpr int height = 512;
@@ -106,11 +176,8 @@ int main() {
         // レイの生成
         const Ray ray = camera.sampleRay(u, v);
 
-        // 1.0 - AOを色にする
-        IntersectInfo info;
-        if (scene.intersect(ray, info)) {
-          color += Vec3f(1.0f - RTAO(info, scene, rng));
-        }
+        // 古典的レイトレーシングで色を計算
+        color += raytrace(ray, scene, rng);
       }
 
       // 平均
