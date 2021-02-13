@@ -35,3 +35,8 @@ add_executable(raytracer-openmp raytracer-openmp.cpp)
 target_compile_features(raytracer-openmp PRIVATE cxx_std_17)
 target_include_directories(raytracer-openmp PRIVATE src)
 target_link_libraries(raytracer-openmp PRIVATE OpenMP::OpenMP_CXX)
+
+add_executable(test-ao test-ao.cpp)
+target_compile_features(test-ao PRIVATE cxx_std_17)
+target_include_directories(test-ao PRIVATE src)
+target_link_libraries(test-ao PRIVATE OpenMP::OpenMP_CXX)
