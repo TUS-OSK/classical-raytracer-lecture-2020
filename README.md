@@ -1,5 +1,7 @@
 # classical-raytracer-lecture-2020
 
+![](img/classical-raytracer.jpg)
+
 [p-ray](https://p-ray.oskt.us/)の2020年度講義 "古典的レイトレーサーの実装" の講義用リポジトリです.
 
 演習用のディレクトリやリファレンス実装が含まれています。CMakeを用いて簡単にビルドが行なえます。
